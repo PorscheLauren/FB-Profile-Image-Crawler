@@ -19,15 +19,15 @@ def CrawlFBProfileImage(facebook_page_link):
                     personnel_soup = BeautifulSoup(personnel_page, "lxml")
                     personnel_imgs = personnel_soup.findAll('img', {"class": True})
                     for personnel_img in personnel_imgs:
+                        print personnel_img['src']
                         for sub_className in personnel_img['class']:
-                           if "profilePic" in sub_className:
+                            if "profilePic" in sub_className or "4jhq" in sub_className:
                                 split_slash = [x.strip() for x in personnel_url.split('/')]
                                 split_eqsign = [x.strip() for x in split_slash[3].split('=')]
-                                user_id_str = ''
                                 if 'profile.php' in split_eqsign[0]:
-                                   user_id_str = split_eqsign[1][:-5]
+                                    user_id_str = split_eqsign[1][:-5]
                                 else:
-                                   user_id_str = split_eqsign[0][:-5]
+                                    user_id_str = split_eqsign[0][:-5]
 
                                 print 'Crawling image ' + personnel_img['src']
                                 f = open(image_folder_path + user_id_str, 'wb')  # save in the profileimags folder
@@ -35,6 +35,7 @@ def CrawlFBProfileImage(facebook_page_link):
                                 f.close()
 
                 except urllib2.HTTPError:
+                    print "404 not found"
                     continue
 
         # if id_span['class'] == "UFICommentActorName":
