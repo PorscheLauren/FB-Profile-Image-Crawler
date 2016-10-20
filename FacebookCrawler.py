@@ -1,25 +1,42 @@
 import urllib2
 import urllib
 from bs4 import BeautifulSoup
+import FacebookLogin
 
 image_folder_path = "../profileimages/"
-twitter_website_folder_path = "../facebookwebsite/todo/"
+facebook_website_folder_path = "../facebookwebsite/todo/"
 
 def CrawlFBProfileImage(facebook_page_link):
     page = urllib2.urlopen(facebook_page_link)
     soup = BeautifulSoup(page, "lxml")
     id_spans = soup.findAll('a', {"class": True})
+
     for id_span in id_spans:
         for className in id_span['class']:
             if "UFICommentActorName" in className:
                 personnel_url = id_span['href']
 
                 try:
-                    personnel_page = urllib2.urlopen(personnel_url)
+                    personnel_page = urllib2.urlopen(personnel_url).read()
+                    # homefbhtml = urllib2.urlopen(personnel_url).read()
+                    # htmlfile = open(str(count) + ".html", "w")
+                    # htmlfile.write(homefbhtml)
+                    # htmlfile.close()
+                    # count += 1
+
                     personnel_soup = BeautifulSoup(personnel_page, "lxml")
-                    personnel_imgs = personnel_soup.findAll('img', {"class": True})
+                    personnel_imgs = personnel_soup.findAll('img')
+                    print personnel_imgs
                     for personnel_img in personnel_imgs:
-                        print personnel_img['src']
+
+                        if 'captcha_challenge_code' in personnel_img['src']:
+                            # FB found us
+                            f = open("captcha.jpeg", 'wb')  # save in the profileimags folder
+                            f.write(urllib.urlopen(personnel_img['src']).read())
+                            f.close()
+                            print "Facebook Got US!"
+                            return
+
                         for sub_className in personnel_img['class']:
                             if "profilePic" in sub_className or "4jhq" in sub_className:
                                 split_slash = [x.strip() for x in personnel_url.split('/')]
@@ -29,7 +46,7 @@ def CrawlFBProfileImage(facebook_page_link):
                                 else:
                                     user_id_str = split_eqsign[0][:-5]
 
-                                print 'Crawling image ' + personnel_img['src']
+                                print 'Crawling profile image of ' + user_id_str
                                 f = open(image_folder_path + user_id_str, 'wb')  # save in the profileimags folder
                                 f.write(urllib.urlopen(personnel_img['src']).read())
                                 f.close()
@@ -38,30 +55,61 @@ def CrawlFBProfileImage(facebook_page_link):
                     print "404 not found"
                     continue
 
-        # if id_span['class'] == "UFICommentActorName":
-        #     print id_span['href']
-
-        # for img_tag in id_span.findChildren("img", {"src": True}):
-        #     if 'profile_image' in img_tag['src'] and 'default_' not in img_tag:
-        #         img_link_str = img_tag['src']
-        #         img_link_str = re.sub('_bigger', '', img_link_str)  # remove the "_bigger" substring, to achieve the bigger image
-        #
-        #         print "crawling the image " + img_link_str
-        #
-        #         user_id_str = id_span['href'].strip('/')
-        #         f = open(image_folder_path + user_id_str, 'wb')  # save in the profileimags folder
-        #         f.write(urllib.urlopen(img_link_str).read())
-        #         f.close()
 
 
-# for root, dirs, htmlfiles in os.walk(twitter_website_folder_path):
-#     for htmlfile in htmlfiles:
-#         abs_path_str = os.path.realpath(os.path.join(root, htmlfile))
-#         abs_path_url_str = "file://" + abs_path_str
-#         abs_path_url_str = re.sub(' ', '%20', abs_path_url_str) # replace all the spaces with %20
-#         CrawlTwitProfileImage(abs_path_url_str)
+def CrawlFBProfileImage2(facebook_page_link):
+    page = urllib2.urlopen(facebook_page_link)
+    soup = BeautifulSoup(page, "lxml")
+    id_spans = soup.findAll('a', {"class": True})
 
-CrawlFBProfileImage('file:///home/xyh3984/Profile%20image%20project/Facebook%20Crawling/facebookwebsite/test.html')
+    for id_span in id_spans:
+        for className in id_span['class']:
+            if "UFICommentActorName" in className:
+                personnel_url = id_span['href']
+
+                try:
+                    personnel_page = urllib2.urlopen(personnel_url).read()
+                    if "captcha.jpeg" in personnel_page:
+                        #Facebook got us
+                        print "Facebook got us!"
+                        return
+
+                    start = personnel_page.find('img class="profilePic img')
+
+                    if start < 0: # not found
+                        start = personnel_page.find('img class="4jhq')
+
+                    if start > 0:
+                        substring_all = personnel_page[start:start + 300]
+                        substrings = substring_all.split('"')
+                        personnel_img_src = ''
+                        for substring in substrings:
+                            if "https" in substring and "amp;" in substring:
+                                personnel_img_src = substring.replace('amp;', '')
+                        split_slash = [x.strip() for x in personnel_url.split('/')]
+                        split_eqsign = [x.strip() for x in split_slash[3].split('=')]
+                        if 'profile.php' in split_eqsign[0]:
+                            user_id_str = split_eqsign[1][:-5]
+                        else:
+                            user_id_str = split_eqsign[0][:-5]
+
+                        print 'Crawling profile image ' + personnel_img_src + " for " + user_id_str
+                        try:
+                            f = open(image_folder_path + user_id_str, 'wb')  # save in the profileimags folder
+                            f.write(urllib.urlopen(personnel_img_src).read())
+                            f.close()
+                        except IOError:
+                            print 'Parse error, skip'
+                            continue
+
+
+
+                except urllib2.HTTPError:
+                    print "404 not found"
+                    continue
+
+FacebookLogin.login('418557764@qq.com','19891004xyh3984', 'fbcookie')
+CrawlFBProfileImage2('file:///home/xyh3984/Profile%20image%20project/Facebook%20Crawling/facebookwebsite/todo/test.html')
 
 
 ## test part
