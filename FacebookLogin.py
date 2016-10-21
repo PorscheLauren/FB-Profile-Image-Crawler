@@ -2,6 +2,8 @@ import urllib
 import urllib2
 import cookielib
 
+import time
+from selenium import webdriver
 
 
 def login(username, pwd, cookie_file):
@@ -61,10 +63,19 @@ def login(username, pwd, cookie_file):
     cookie_jar2.save(cookie_file, ignore_discard=True, ignore_expires=True)
     urllib2.urlopen(req_login)
 
-    homefbhtml = urllib2.urlopen('https://www.facebook.com/').read()
-    htmlfile = open("index.html", "w")
-    htmlfile.write(homefbhtml)
-    htmlfile.close()
 
+def login_withSelenium(username, password):
+    browser = webdriver.Chrome('chromedriver')
+    browser.get('https://www.facebook.com')
 
+    input_username = browser.find_element_by_id('email')
+    input_username.send_keys(username)
+
+    input_password = browser.find_element_by_id('pass')
+    input_password.send_keys(password)
+
+    login_btn = browser.find_element_by_id('u_0_n')
+    login_btn.click()
+
+    return browser
 
