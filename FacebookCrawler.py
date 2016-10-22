@@ -85,13 +85,3 @@ def GetPersonnelID(personnel_url):
     else:
         user_id_str = split_eqsign[0][:-5]
     return user_id_str
-
-
-
-FacebookLogin.login('418557764@qq.com','19891004xyh3984', 'fbcookie')
-# CrawlFBProfileImage2('file:///home/xyh3984/Profile%20image%20project/Facebook%20Crawling/facebookwebsite/todo/test1.html')
-# CrawlFBProfileImage2('file:///home/xyh3984/Profile%20image%20project/Facebook%20Crawling/facebookwebsite/todo/test2.html')
-
-# print GetCommentors('file:///C:/Users/xyh3984/Desktop/FB-Profile-Image-Crawler/test.html')
-
-print GetPersonnelProfileImg('https://www.facebook.com/jaewonshin',FacebookLogin.login_withSelenium('418557764@qq.com','19891004xyh3984'))
