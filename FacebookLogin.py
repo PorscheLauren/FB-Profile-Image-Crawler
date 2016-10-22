@@ -73,7 +73,6 @@ def login_withSelenium(username, password):
 
     input_password = browser.find_element_by_id('pass')
     input_password.send_keys(password)
-
     login_btn = browser.find_element_by_id('u_0_n')
     login_btn.click()
 

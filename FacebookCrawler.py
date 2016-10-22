@@ -10,7 +10,7 @@ facebook_website_folder_path = "../facebookwebsite/todo/"
 
 # browser should already log in to Facebook, call FacebookLogin.login_withSelenium firsts
 def GetPersonnelProfileImg(personnel_url, browser = None):
-    personnel_profile_img_link = []
+    personnel_profile_img_link = ''
     try:
         personnel_page = urllib2.urlopen(personnel_url).read()
         if "captcha.jpeg" in personnel_page:
@@ -36,16 +36,11 @@ def GetPersonnelProfileImg(personnel_url, browser = None):
 
                     for substring in substring_all:
                         if "https" in substring or "http" in substring:
-                            print substring
-                            personnel_profile_img_link.append(
-                                unicodedata.normalize('NFKD', substring.replace('amp;', ''))
-                                .encode('ascii', 'ignore'))
+                            personnel_profile_img_link =  unicodedata.normalize('NFKD', substring.replace('amp;', '')).encode('ascii', 'ignore')
                             break
-
 
         else:  # no browser engin, get low resolution profile image
             start = personnel_page.find('img class="profilePic img')
-            print start
             if start < 0:  # not found
                 start = personnel_page.find('img class="4jhq')
 
@@ -54,12 +49,8 @@ def GetPersonnelProfileImg(personnel_url, browser = None):
                 substrings = substring_all.split('"')
                 for substring in substrings:
                     if "https" in substring and "amp;" in substring:
-                        personnel_profile_img_link.append(substring.replace('amp;', ''))
+                        personnel_profile_img_link = substring.replace('amp;', '')
                         break
-
-        if len(personnel_profile_img_link) != 0:
-            print "user id:" + user_id_str + " img link: " + personnel_profile_img_link[
-                len(personnel_profile_img_link) - 1]
 
     except urllib2.HTTPError:
         print "404 not found, skip"
@@ -67,9 +58,10 @@ def GetPersonnelProfileImg(personnel_url, browser = None):
         print "adcii code error, skip"
     except TimeoutException:
         print "Loading took too much time!"
-    except BaseException:
-        print 'all other errors, skip'
+    # except BaseException:
+    #     print 'all other errors, skip'
 
+    return personnel_profile_img_link
 
 # return a list of all commentors
 # for offline facebook_page_link only so far
@@ -100,5 +92,6 @@ FacebookLogin.login('418557764@qq.com','19891004xyh3984', 'fbcookie')
 # CrawlFBProfileImage2('file:///home/xyh3984/Profile%20image%20project/Facebook%20Crawling/facebookwebsite/todo/test1.html')
 # CrawlFBProfileImage2('file:///home/xyh3984/Profile%20image%20project/Facebook%20Crawling/facebookwebsite/todo/test2.html')
 
-print GetCommentors('file:///C:/Users/xyh3984/Desktop/FB-Profile-Image-Crawler/test.html')
+# print GetCommentors('file:///C:/Users/xyh3984/Desktop/FB-Profile-Image-Crawler/test.html')
 
+print GetPersonnelProfileImg('https://www.facebook.com/jaewonshin',FacebookLogin.login_withSelenium('418557764@qq.com','19891004xyh3984'))
