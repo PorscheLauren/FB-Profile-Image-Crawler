@@ -80,7 +80,9 @@ def GetCommentors(facebook_page_link): # return a list of all commentors
 def GetPersonnelID(personnel_url):
     split_slash = [x.strip() for x in personnel_url.split('/')]
     split_eqsign = [x.strip() for x in split_slash[3].split('=')]
-    if 'profile.php' in split_eqsign[0]:
+    if len(split_eqsign) == 1:
+        user_id_str = split_eqsign[len(split_eqsign)-1]
+    elif 'profile.php' in split_eqsign[0]:
         user_id_str = split_eqsign[1][:-5]
     else:
         user_id_str = split_eqsign[0][:-5]
